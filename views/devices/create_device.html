@@ -1,0 +1,181 @@
+<style>
+    textarea{
+        resize: vertical;
+    }
+    .easy-autocomplete{
+        width:inherit !important;
+    }
+</style>
+<section class="content">
+    <div class="box box-default">
+        <form role="form" name="addDeviceForm" id="addDeviceForm">
+            <div class="row boxhead box-header with-border boxhead">
+                <div class="col-md-6 ">
+                    <div class="">
+                        <h1 class="formheading">
+                            <b>{{dmcc.title}}</b>
+                        </h1>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pull-right" style="margin-top: 5px; margin-right: 30px;">
+                        <a ng-href="/device/device_list"><button type="button" class="btn btn-default btn-sm" title="Back" style="border:white;color:#428bca;"><i class="fa fa-arrow-left" aria-hidden="true"></i></button></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="mandatory" for="">Name</label>
+                                <input type="text" class="form-control" name="deviceName" ng-model="dmcc.deviceName" placeholder="Enter Device name">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <select id="port1" name="port1" class="form-control" ng-model="dmcc.port1" data-placeholder="Select port" ng-change="dmcc.changePointByPort(dmcc.port1,dmcc.port2,dmcc.port1Status,dmcc.port2Status);">
+                            <option ng-repeat="key in dmcc.json.prts_1" value="{{key}}" >{{key}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="port1Status" name="port1Status" class="form-control" ng-model="dmcc.port1Status" data-placeholder="Select port status" ng-change="dmcc.changeStatusPoint1(dmcc.port1Status,dmcc.port1,dmcc.port2);">
+                                <option  ng-repeat="x in dmcc.json.prtpnts_1" value="{{x}}" >{{x}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="devicePort1Status" name="devicePort1Status" class="form-control" ng-model="dmcc.devicePort1Status" data-placeholder="Select device port status" ng-change="dmcc.changeStatus1(dmcc.devicePort1Status);">
+                                <option  ng-repeat="x in dmcc.json.prtst_1" value="{{x}}" >{{x}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <div class="">
+                                <textarea  type="text" rows="2" ng-model="dmcc.port_reason_1" name="port_reason_1" id="port_reason_1" class="form-control"></textarea>
+
+                                <input type="hidden" name="port_reason_1_id" id="port_reason_1_id">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <select id="port2" name="port2" class="form-control" ng-model="dmcc.port2" data-placeholder="Select port" ng-change="dmcc.changePointByPort(dmcc.port1,dmcc.port2,dmcc.port1Status,dmcc.port2Status);">
+                                <option ng-repeat="key in dmcc.json.prts_1" value="{{key}}">{{key}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="port2Status" name="port2Status" class="form-control" ng-model="dmcc.port2Status" data-placeholder="Select port status"  ng-change="dmcc.changeStatusPoint2(dmcc.port2Status,dmcc.port1,dmcc.port2);">
+                                <option ng-repeat="x in dmcc.json.prtpnts_1"  value="{{x}}" >{{x}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select id="devicePort2Status" name="devicePort2Status" class="form-control" ng-model="dmcc.devicePort2Status" data-placeholder="Select device port status" ng-change="dmcc.changeStatus2(dmcc.devicePort2Status);" >
+                                <option ng-repeat="x in dmcc.json.prtst_1" value="{{x}}">{{x}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <div class="">
+                                <textarea  type="text" rows="2" ng-model="dmcc.port_reason_2" name="port_reason_2" id="port_reason_2" class="form-control"></textarea>
+                                <input type="hidden" name="port_reason_2_id" id="port_reason_2_id">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.box-body -->
+        </form>
+
+        <div class="box-footer">
+            <div class="pull pull-right" >
+                <button type="button" value="Save" data-ng-click="dmcc.saveDevice()" class="btn btn-success">Save</button>
+                <button type="reset" value="Clear" ng-click="resetForm()" class="btn" >Clear</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+
+        $(".s2mn").on("change", function () { $(this).valid(); });
+
+        $("html, body").animate({scrollTop: 0}, "fast");
+        $('.modal').on('hidden.bs.modal', function (e) {
+            console.log("Modal is closed");
+            $("#formAddCustomReason_off")[0].reset();
+            $("#formAddCustomReason_on")[0].reset();
+            $("div.form-group").each(function () {
+                $(this).removeClass('has-error');
+                $('span.help-block-error').remove();
+                // applySelect2();
+            });
+        });
+
+        $("#addDeviceForm").validate({
+            errorElement: 'span', //default input error message container
+            errorClass: 'help-block help-block-error',
+            errorPlacement: function (error, element) {
+
+                var type = $(element).attr("type");
+                if ($(element).attr("id") === "port_reason_1")
+                {
+                    element.parent().append(error);
+                }
+                else if ($(element).attr("id") === "port_reason_2")
+                {
+                    element.parent().append(error);
+                }
+                else {
+                    error.insertAfter(element);
+                }
+            },
+            focusInvalid: true, // set focus the last invalid input
+            ignore: [], // validate all fields including form hidden input
+            rules: {
+                deviceName: {
+                    required: true
+                },
+                port_reason_1:{
+                    required:true
+                },
+                port_reason_2:{
+                    required:true
+                },
+            },
+            messages: {
+                deviceName: {
+                    required: "Device name is required."
+                },
+                port_reason_1: {
+                    required: "Port reason is required."
+                },
+                port_reason_2: {
+                    required: "Port reason is required."
+                },
+            },
+            highlight: function (element) { // hightlight error inputs
+                $(element)
+                        .closest('.form-group').addClass('has-error');
+                $(element)
+                        .next().children().children().attr('style', 'border-color:#dd4b39!important');
+                // set error class to the control group
+            },
+            unhighlight: function (element) { // revert the change done by hightlight
+                $(element)
+                        .closest('.form-group').removeClass('has-error');
+                $(element)
+                        .next().children().children().attr('style', 'border-color:'); // set error class to the control group
+            },
+            success: function (label) {
+                label
+                        .closest('.form-group').removeClass('has-error'); // set success class to the control group
+            }
+        });
+    });
+</script>
